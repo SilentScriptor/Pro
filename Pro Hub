@@ -60,8 +60,7 @@ local Window = Rayfield:CreateWindow({
             end
         end)
     end,
-Toggle:Set(false)
  })
- 
+ Toggle:Set(false)
 
  Rayfield:LoadConfiguration()
