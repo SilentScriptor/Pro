@@ -48,6 +48,19 @@ local Window = Rayfield:CreateWindow({
     end,
  })
 
+ 
+local Slider = PlayerTab:CreateSlider({
+    Name = "JumpPower",
+    Range = {50, 500},
+    Increment = 10,
+    Suffix = "JumpPower",
+    CurrentValue = 10,
+    Flag = "Slider1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+    Callback = function(value)
+        game.Players.LocalPlayer.Character.Humanoid.JumpPower = value
+    end,
+ })
+
  local Button = PlayerTab:CreateButton({
     Name = "Infinite Jump",
     Callback = function(InfiniteJumpEnabled)
@@ -60,16 +73,36 @@ local Window = Rayfield:CreateWindow({
     end,
  })
 
- local Slider = PlayerTab:CreateSlider({
-    Name = "JumpPower",
-    Range = {50, 500},
-    Increment = 10,
-    Suffix = "JumpPower",
-    CurrentValue = 10,
-    Flag = "Slider1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-    Callback = function(value)
-        game.Players.LocalPlayer.Character.Humanoid.JumpPower = value
+ local Toggle = PlayerTab:CreateToggle({
+    Name = "Toggle Example",
+    CurrentValue = false,
+    Flag = "Toggle1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+    Callback = function(Value)
+        local Noclip = nil
+        local Clip = nil
+        
+        function noclip()
+            Clip = false
+            local function Nocl()
+                if Clip == false and game.Players.LocalPlayer.Character ~= nil then
+                    for _,v in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+                        if v:IsA('BasePart') and v.CanCollide and v.Name ~= floatName then
+                            v.CanCollide = false
+                        end
+                    end
+                end
+                wait(0.21) -- basic optimization
+            end
+            Noclip = game:GetService('RunService').Stepped:Connect(Nocl)
+        end
+        
+        function clip()
+            if Noclip then Noclip:Disconnect() end
+            Clip = true
+        end
+        
+        noclip() -- to toggle noclip() and clip()
     end,
  })
 
- Rayfield:LoadConfiguration()
+ Rayfield:LoadConfiguration() 
