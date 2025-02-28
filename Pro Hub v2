@@ -145,4 +145,20 @@ local Button = ScriptTab:CreateButton({
     end,
  })
 
+ local Dropdown = ScriptTab:CreateDropdown({
+    Name = "Blox Fruit",
+    Options = {"Speed Hub X", "Redz Hub"},
+    CurrentOption = "None",  -- set to "None" if you want nothing to run initially
+    MultipleOptions = false,
+    Flag = "Dropdown1",
+    Callback = function(Option)
+        if Option == "Speed Hub X" then
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua"))()
+        elseif Option == "Redz Hub" then
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/realredz/BloxFruits/refs/heads/main/Source.lua"))()
+        end
+    end,
+})
+
+
 Rayfield:LoadConfiguration()
