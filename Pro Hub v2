@@ -1,11 +1,15 @@
-local success, result = pcall(function()
+local UI
+
+local rayfieldSuccess, rayfield = pcall(function()
     return loadstring(game:HttpGet("https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/main/source.lua"))()
 end)
 
-if success then
-    local Rayfield = result
+if rayfieldSuccess then
+    UI = rayfield
+    print("Rayfield loaded!")
 else
-    warn("Failed to load Rayfield:", result)
+    print("Rayfield failed, falling back to Orion...")
+    UI = loadstring(game:HttpGet("https://raw.githubusercontent.com/shlexware/Orion/main/source"))()
 end
 
 
