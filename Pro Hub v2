@@ -28,13 +28,14 @@ local Window = Rayfield:CreateWindow({
     },
 })
 
---// PLAYER TAB \\--
+-- Player Tab
 local PlayerTab = Window:CreateTab("Player", 4483362458)
 
 PlayerTab:CreateSlider({
     Name = "WalkSpeed",
     Range = {0, 300},
     Increment = 1,
+    Suffix = "Speed",
     CurrentValue = 16,
     Flag = "WalkSpeedSlider",
     Callback = function(Value)
@@ -46,6 +47,7 @@ PlayerTab:CreateSlider({
     Name = "JumpPower",
     Range = {50, 500},
     Increment = 10,
+    Suffix = "JumpPower",
     CurrentValue = 50,
     Flag = "JumpPowerSlider",
     Callback = function(Value)
@@ -63,127 +65,90 @@ PlayerTab:CreateToggle({
                 game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
             end)
         else
-            if _G.InfiniteJump then _G.InfiniteJump:Disconnect() end
+            if _G.InfiniteJump then
+                _G.InfiniteJump:Disconnect()
+                _G.InfiniteJump = nil
+            end
         end
     end,
-})
-
--- Infinite Yield Style Fly (With Mobile Support)
-local FlyEnabled, FlySpeed = false, 50
-local BV, BG = nil, nil
-
-local function StartFly()
-    local hrp = game.Players.LocalPlayer.Character.HumanoidRootPart
-    BV, BG = Instance.new("BodyVelocity", hrp), Instance.new("BodyGyro", hrp)
-    BV.MaxForce, BG.MaxTorque = Vector3.new(9e9, 9e9, 9e9), Vector3.new(9e9, 9e9, 9e9)
-    BG.CFrame = hrp.CFrame
-
-    spawn(function()
-        while FlyEnabled do
-            local cam = workspace.CurrentCamera
-            local move = Vector3.zero
-            local uis = game:GetService("UserInputService")
-
-            if uis:IsKeyDown(Enum.KeyCode.W) then move += cam.CFrame.LookVector end
-            if uis:IsKeyDown(Enum.KeyCode.S) then move -= cam.CFrame.LookVector end
-            if uis:IsKeyDown(Enum.KeyCode.A) then move -= cam.CFrame.RightVector end
-            if uis:IsKeyDown(Enum.KeyCode.D) then move += cam.CFrame.RightVector end
-            if uis:IsKeyDown(Enum.KeyCode.Space) then move += Vector3.yAxis end
-            if _G.MobileFlyDown then move -= Vector3.yAxis end
-
-            BV.Velocity, BG.CFrame = move.Unit * FlySpeed, cam.CFrame
-            wait()
-        end
-    end)
-end
-
-local function StopFly()
-    if BV then BV:Destroy() end
-    if BG then BG:Destroy() end
-end
-
-local FlyToggle = PlayerTab:CreateToggle({
-    Name = "Fly (OFF)",
-    CurrentValue = false,
-    Callback = function(state)
-        FlyEnabled = state
-        FlyToggle:Set(state and "Fly (ON)" or "Fly (OFF)")
-        if state then StartFly() else StopFly() end
-    end,
-})
-
-PlayerTab:CreateSlider({
-    Name = "Fly Speed",
-    Range = {10, 300},
-    Increment = 5,
-    CurrentValue = FlySpeed,
-    Callback = function(value) FlySpeed = value end
 })
 
 PlayerTab:CreateToggle({
-    Name = "Fly Down (Mobile)",
+    Name = "No Clip",
     CurrentValue = false,
-    Callback = function(state)
-        _G.MobileFlyDown = state
-    end,
-})
-
---// TELEPORT TAB \\--
-local TeleportTab = Window:CreateTab("Teleports", 4483362458)
-
-TeleportTab:CreateButton({
-    Name = "Teleport to Player",
-    Callback = function()
-        local target = game:GetService("Players"):GetPlayers()[2]
-        if target and target.Character then
-            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = target.Character.HumanoidRootPart.CFrame
-        end
-    end,
-})
-
-TeleportTab:CreateButton({
-    Name = "Teleport to Part (Nearest)",
-    Callback = function()
-        local nearestPart = nil
-        local shortestDistance = math.huge
-        for _, part in pairs(workspace:GetDescendants()) do
-            if part:IsA("Part") then
-                local distance = (part.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
-                if distance < shortestDistance then
-                    shortestDistance = distance
-                    nearestPart = part
+    Flag = "NoClipToggle",
+    Callback = function(Enabled)
+        local RunService = game:GetService('RunService')
+        local function noclip()
+            if game.Players.LocalPlayer.Character then
+                for _, v in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+                    if v:IsA('BasePart') and v.CanCollide then
+                        v.CanCollide = false
+                    end
                 end
             end
         end
-        if nearestPart then
-            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = nearestPart.CFrame
+
+        if Enabled then
+            _G.NoClipConnection = RunService.Stepped:Connect(noclip)
+        else
+            if _G.NoClipConnection then
+                _G.NoClipConnection:Disconnect()
+                _G.NoClipConnection = nil
+            end
         end
     end,
 })
 
---// ESP TAB \\--
+-- Teleport Tab
+local TeleportTab = Window:CreateTab("Teleports", 4483362458)
+
+local Locations = {
+    {"Spawn", game.Players.LocalPlayer.Character.HumanoidRootPart.Position},
+    {"Sky High", Vector3.new(0, 500, 0)},
+    {"Void", Vector3.new(0, -500, 0)}
+}
+
+for _, location in ipairs(Locations) do
+    TeleportTab:CreateButton({
+        Name = location[1],
+        Callback = function()
+            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(location[2])
+        end,
+    })
+end
+
+-- ESP Tab
 local ESPTab = Window:CreateTab("ESP", 4483362458)
 
 local function ApplyESP(player)
-    if player ~= game.Players.LocalPlayer and player.Character then
-        local highlight = Instance.new("Highlight", player.Character)
-        highlight.FillColor, highlight.FillTransparency = Color3.fromRGB(255, 0, 0), 0.5
-        player.CharacterAdded:Connect(function() ApplyESP(player) end)
-    end
+    if player == game.Players.LocalPlayer then return end
+    local highlight = Instance.new("Highlight", player.Character or player.CharacterAdded:Wait())
+    highlight.Adornee = player.Character
+    highlight.FillColor = Color3.fromRGB(255, 0, 0)
+    highlight.FillTransparency = 0.5
+    player.CharacterAdded:Connect(function(char)
+        highlight.Adornee = char
+    end)
 end
 
 ESPTab:CreateToggle({
-    Name = "Player ESP (Client)",
+    Name = "Player ESP",
     CurrentValue = false,
-    Callback = function(state)
-        if state then
-            for _, player in pairs(game.Players:GetPlayers()) do ApplyESP(player) end
+    Flag = "PlayerESP",
+    Callback = function(Enabled)
+        if Enabled then
+            for _, player in ipairs(game.Players:GetPlayers()) do
+                ApplyESP(player)
+            end
             game.Players.PlayerAdded:Connect(ApplyESP)
         else
-            for _, player in pairs(game.Players:GetPlayers()) do
+            for _, player in ipairs(game.Players:GetPlayers()) do
                 if player.Character then
                     for _, v in ipairs(player.Character:GetChildren()) do
-                        if v:IsA("Highlight") then v:Destroy() end
+                        if v:IsA("Highlight") then
+                            v:Destroy()
+                        end
                     end
                 end
             end
@@ -191,130 +156,60 @@ ESPTab:CreateToggle({
     end,
 })
 
---// FUN TAB \\--
+-- Autofarm Tab
+local AutoFarmTab = Window:CreateTab("AutoFarm", 4483362458)
+
+AutoFarmTab:CreateToggle({
+    Name = "Auto Collect Coins",
+    CurrentValue = false,
+    Flag = "AutoFarm",
+    Callback = function(Enabled)
+        if Enabled then
+            _G.Farming = true
+            while _G.Farming do
+                for _, v in ipairs(workspace:GetDescendants()) do
+                    if v.Name:lower():find("coin") and v:IsA("Part") then
+                        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.CFrame
+                        wait(0.1)
+                    end
+                end
+                wait(0.5)
+            end
+        else
+            _G.Farming = false
+        end
+    end,
+})
+
+-- Fun Tab
 local FunTab = Window:CreateTab("Fun", 4483362458)
 
 FunTab:CreateButton({
-    Name = "Fling Yourself (Client)",
+    Name = "Fling Yourself",
     Callback = function()
         local hrp = game.Players.LocalPlayer.Character.HumanoidRootPart
         hrp.Velocity = Vector3.new(math.random(-500, 500), math.random(500, 1000), math.random(-500, 500))
     end,
 })
 
-FunTab:CreateToggle({
-    Name = "Rainbow Character (Client)",
-    CurrentValue = false,
-    Callback = function(state)
-        _G.RainbowChar = state
-        while _G.RainbowChar do
-            for _, part in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
-                if part:IsA("BasePart") then
-                    part.Color = Color3.fromHSV(tick() % 5 / 5, 1, 1)
+FunTab:CreateButton({
+    Name = "Rainbow Character",
+    Callback = function()
+        spawn(function()
+            while true do
+                for _, part in ipairs(game.Players.LocalPlayer.Character:GetChildren()) do
+                    if part:IsA("BasePart") then
+                        part.Color = Color3.fromHSV(tick()%5/5, 1, 1)
+                    end
                 end
+                wait(0.1)
             end
-            wait(0.1)
-        end
+        end)
     end,
 })
 
 FunTab:CreateButton({
-    Name = "Explode Yourself (Server)",
-    Callback = function()
-        local explosion = Instance.new("Explosion", workspace)
-        explosion.Position = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
-        game.Players.LocalPlayer.Character:BreakJoints()
-    end,
-})
-
-Rayfield:LoadConfiguration()
-
-
-FunTab:CreateToggle({
-    Name = "Spin Like Crazy (Server)",
-    CurrentValue = false,
-    Callback = function(enabled)
-        local hrp = game.Players.LocalPlayer.Character.HumanoidRootPart
-        if enabled then
-            _G.SpinLoop = true
-            spawn(function()
-                while _G.SpinLoop do
-                    hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(30), 0)
-                    wait(0.05)
-                end
-            end)
-        else
-            _G.SpinLoop = false
-        end
-    end,
-})
-
-FunTab:CreateButton({
-    Name = "Tiny Character (Server)",
-    Callback = function()
-        for _, part in ipairs(game.Players.LocalPlayer.Character:GetDescendants()) do
-            if part:IsA("BasePart") then
-                part.Size = part.Size * 0.3
-            end
-        end
-    end,
-})
-
-FunTab:CreateButton({
-    Name = "Giant Character (Server)",
-    Callback = function()
-        for _, part in ipairs(game.Players.LocalPlayer.Character:GetDescendants()) do
-            if part:IsA("BasePart") then
-                part.Size = part.Size * 3
-            end
-        end
-    end,
-})
-
-FunTab:CreateButton({
-    Name = "Teleport to Random Player (Client)",
-    Callback = function()
-        local players = game.Players:GetPlayers()
-        if #players > 1 then
-            local target = players[math.random(1, #players)]
-            if target ~= game.Players.LocalPlayer and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
-                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = target.Character.HumanoidRootPart.CFrame
-            end
-        else
-            Rayfield:Notify({Title = "Oops!", Content = "No other players found to teleport to."})
-        end
-    end,
-})
-
-FunTab:CreateToggle({
-    Name = "Gravity Madness (Client)",
-    CurrentValue = false,
-    Callback = function(enabled)
-        if enabled then
-            game.Workspace.Gravity = math.random(1, 200)
-            Rayfield:Notify({Title = "Gravity Set!", Content = "Gravity: " .. game.Workspace.Gravity})
-        else
-            game.Workspace.Gravity = 196.2
-            Rayfield:Notify({Title = "Gravity Reset", Content = "Back to normal."})
-        end
-    end,
-})
-
-FunTab:CreateToggle({
-    Name = "Fake Lag (Client)",
-    CurrentValue = false,
-    Callback = function(enabled)
-        game:GetService("RunService"):Set3dRenderingEnabled(not enabled)
-        if enabled then
-            Rayfield:Notify({Title = "Fake Lag On", Content = "Rendering Disabled."})
-        else
-            Rayfield:Notify({Title = "Fake Lag Off", Content = "Rendering Enabled."})
-        end
-    end,
-})
-
-FunTab:CreateButton({
-    Name = "Explode Yourself (Server)",
+    Name = "Explode Yourself",
     Callback = function()
         local explosion = Instance.new("Explosion")
         explosion.Position = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
@@ -322,47 +217,5 @@ FunTab:CreateButton({
         game.Players.LocalPlayer.Character:BreakJoints()
     end,
 })
-
-FunTab:CreateToggle({
-    Name = "Rainbow Character (Server)",
-    CurrentValue = false,
-    Callback = function(enabled)
-        if enabled then
-            _G.RainbowCharacter = true
-            spawn(function()
-                while _G.RainbowCharacter do
-                    for _, part in ipairs(game.Players.LocalPlayer.Character:GetChildren()) do
-                        if part:IsA("BasePart") then
-                            part.Color = Color3.fromHSV(tick()%5/5, 1, 1)
-                        end
-                    end
-                    wait(0.1)
-                end
-            end)
-        else
-            _G.RainbowCharacter = false
-        end
-    end,
-})
-
-FunTab:CreateToggle({
-    Name = "Fling Yourself (Server)",
-    CurrentValue = false,
-    Callback = function(enabled)
-        local hrp = game.Players.LocalPlayer.Character.HumanoidRootPart
-        if enabled then
-            _G.FlingLoop = true
-            spawn(function()
-                while _G.FlingLoop do
-                    hrp.Velocity = Vector3.new(math.random(-500, 500), math.random(500, 1000), math.random(-500, 500))
-                    wait(0.1)
-                end
-            end)
-        else
-            _G.FlingLoop = false
-        end
-    end,
-})
-
 
 Rayfield:LoadConfiguration()
