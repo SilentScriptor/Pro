@@ -18,7 +18,7 @@ end
 local Rayfield = loadstring(RayfieldSource)()
 
 local Window = Rayfield:CreateWindow({
-    Name = "Pro Hub - v2",
+    Name = "Pro Hub - v3",
     LoadingTitle = "Pro Hub",
     LoadingSubtitle = "by Mike",
     Theme = "Default",
@@ -28,6 +28,7 @@ local Window = Rayfield:CreateWindow({
     },
 })
 
+-- Player Tab
 local PlayerTab = Window:CreateTab("Player", 4483362458)
 
 PlayerTab:CreateSlider({
@@ -54,7 +55,6 @@ PlayerTab:CreateSlider({
     end,
 })
 
--- Infinite Jump Toggle (Fixed)
 PlayerTab:CreateToggle({
     Name = "Infinite Jump",
     CurrentValue = false,
@@ -73,19 +73,18 @@ PlayerTab:CreateToggle({
     end,
 })
 
--- NoClip Toggle (with Safety Check)
 PlayerTab:CreateToggle({
     Name = "No Clip",
     CurrentValue = false,
     Flag = "NoClipToggle",
     Callback = function(Enabled)
         local RunService = game:GetService('RunService')
-
         local function noclip()
-            if not game.Players.LocalPlayer.Character then return end
-            for _, v in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
-                if v:IsA('BasePart') and v.CanCollide then
-                    v.CanCollide = false
+            if game.Players.LocalPlayer.Character then
+                for _, v in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+                    if v:IsA('BasePart') and v.CanCollide then
+                        v.CanCollide = false
+                    end
                 end
             end
         end
@@ -98,6 +97,124 @@ PlayerTab:CreateToggle({
                 _G.NoClipConnection = nil
             end
         end
+    end,
+})
+
+-- Teleport Tab
+local TeleportTab = Window:CreateTab("Teleports", 4483362458)
+
+local Locations = {
+    {"Spawn", game.Players.LocalPlayer.Character.HumanoidRootPart.Position},
+    {"Sky High", Vector3.new(0, 500, 0)},
+    {"Void", Vector3.new(0, -500, 0)}
+}
+
+for _, location in ipairs(Locations) do
+    TeleportTab:CreateButton({
+        Name = location[1],
+        Callback = function()
+            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(location[2])
+        end,
+    })
+end
+
+-- ESP Tab
+local ESPTab = Window:CreateTab("ESP", 4483362458)
+
+local function ApplyESP(player)
+    if player == game.Players.LocalPlayer then return end
+    local highlight = Instance.new("Highlight", player.Character or player.CharacterAdded:Wait())
+    highlight.Adornee = player.Character
+    highlight.FillColor = Color3.fromRGB(255, 0, 0)
+    highlight.FillTransparency = 0.5
+    player.CharacterAdded:Connect(function(char)
+        highlight.Adornee = char
+    end)
+end
+
+ESPTab:CreateToggle({
+    Name = "Player ESP",
+    CurrentValue = false,
+    Flag = "PlayerESP",
+    Callback = function(Enabled)
+        if Enabled then
+            for _, player in ipairs(game.Players:GetPlayers()) do
+                ApplyESP(player)
+            end
+            game.Players.PlayerAdded:Connect(ApplyESP)
+        else
+            for _, player in ipairs(game.Players:GetPlayers()) do
+                if player.Character then
+                    for _, v in ipairs(player.Character:GetChildren()) do
+                        if v:IsA("Highlight") then
+                            v:Destroy()
+                        end
+                    end
+                end
+            end
+        end
+    end,
+})
+
+-- Autofarm Tab
+local AutoFarmTab = Window:CreateTab("AutoFarm", 4483362458)
+
+AutoFarmTab:CreateToggle({
+    Name = "Auto Collect Coins",
+    CurrentValue = false,
+    Flag = "AutoFarm",
+    Callback = function(Enabled)
+        if Enabled then
+            _G.Farming = true
+            while _G.Farming do
+                for _, v in ipairs(workspace:GetDescendants()) do
+                    if v.Name:lower():find("coin") and v:IsA("Part") then
+                        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.CFrame
+                        wait(0.1)
+                    end
+                end
+                wait(0.5)
+            end
+        else
+            _G.Farming = false
+        end
+    end,
+})
+
+-- Fun Tab
+local FunTab = Window:CreateTab("Fun", 4483362458)
+
+FunTab:CreateButton({
+    Name = "Fling Yourself",
+    Callback = function()
+        local hrp = game.Players.LocalPlayer.Character.HumanoidRootPart
+        hrp.Velocity = Vector3.new(math.random(-500, 500), math.random(500, 1000), math.random(-500, 500))
+    end,
+})
+
+FunTab:CreateButton({
+    Name = "Rainbow Character",
+    Callback = function()
+        spawn(function()
+            while true do
+                for _, part in ipairs(game.Players.LocalPlayer.Character:GetChildren()) do
+                    if part:IsA("BasePart") then
+                        part.Color = Color3.fromHSV(tick()%5/5, 1, 1)
+                    end
+                end
+                wait(0.1)
+            end
+        end)
+    end,
+})
+
+FunTab:CreateButton({
+    Name = "Explode Yourself",
+    Callback = function()
+        local explosion = Instance.new("Explosion")
+        explosion.Position = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
+        explosion.Parent = workspace
+        game.Players.LocalPlayer.Character:BreakJoints()
     end,
 })
 
