@@ -23,8 +23,8 @@ local Window = Rayfield:CreateWindow({
     LoadingSubtitle = "by Mike",
     Theme = "Default",
     ConfigurationSaving = {
-        Enabled = true,
-        FileName = "ProHubConfig"
+       Enabled = true,
+       FileName = "ProHubConfig"
     },
 })
 
@@ -35,6 +35,7 @@ PlayerTab:CreateSlider({
     Name = "WalkSpeed",
     Range = {0, 300},
     Increment = 1,
+    Suffix = "Speed",
     CurrentValue = 16,
     Flag = "WalkSpeedSlider",
     Callback = function(Value)
@@ -46,6 +47,7 @@ PlayerTab:CreateSlider({
     Name = "JumpPower",
     Range = {50, 500},
     Increment = 10,
+    Suffix = "JumpPower",
     CurrentValue = 50,
     Flag = "JumpPowerSlider",
     Callback = function(Value)
@@ -56,6 +58,7 @@ PlayerTab:CreateSlider({
 PlayerTab:CreateToggle({
     Name = "Infinite Jump",
     CurrentValue = false,
+    Flag = "InfiniteJumpToggle",
     Callback = function(Enabled)
         if Enabled then
             _G.InfiniteJump = game:GetService("UserInputService").JumpRequest:Connect(function()
@@ -73,20 +76,25 @@ PlayerTab:CreateToggle({
 PlayerTab:CreateToggle({
     Name = "No Clip",
     CurrentValue = false,
+    Flag = "NoClipToggle",
     Callback = function(Enabled)
-        local function NoClip()
-            for _, v in ipairs(game.Players.LocalPlayer.Character:GetDescendants()) do
-                if v:IsA("BasePart") then
-                    v.CanCollide = not Enabled
+        local RunService = game:GetService('RunService')
+        local function noclip()
+            if game.Players.LocalPlayer.Character then
+                for _, v in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+                    if v:IsA('BasePart') and v.CanCollide then
+                        v.CanCollide = false
+                    end
                 end
             end
         end
 
         if Enabled then
-            _G.NoClipConnection = game:GetService("RunService").Stepped:Connect(NoClip)
+            _G.NoClipConnection = RunService.Stepped:Connect(noclip)
         else
             if _G.NoClipConnection then
                 _G.NoClipConnection:Disconnect()
+                _G.NoClipConnection = nil
             end
         end
     end,
@@ -95,62 +103,20 @@ PlayerTab:CreateToggle({
 -- Teleport Tab
 local TeleportTab = Window:CreateTab("Teleports", 4483362458)
 
--- Teleport to Player
-local SelectedPlayer = game.Players:GetPlayers()[1] and game.Players:GetPlayers()[1].Name or ""
+local Locations = {
+    {"Spawn", game.Players.LocalPlayer.Character.HumanoidRootPart.Position},
+    {"Sky High", Vector3.new(0, 500, 0)},
+    {"Void", Vector3.new(0, -500, 0)}
+}
 
-local PlayerDropdown = TeleportTab:CreateDropdown({
-    Name = "Select Player",
-    Options = {},
-    CurrentOption = SelectedPlayer,
-    Callback = function(Option)
-        SelectedPlayer = Option
-    end,
-})
-
-local function UpdatePlayerList()
-    local players = {}
-    for _, player in ipairs(game.Players:GetPlayers()) do
-        table.insert(players, player.Name)
-    end
-    PlayerDropdown:SetOptions(players)
+for _, location in ipairs(Locations) do
+    TeleportTab:CreateButton({
+        Name = location[1],
+        Callback = function()
+            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(location[2])
+        end,
+    })
 end
-
-UpdatePlayerList()
-game.Players.PlayerAdded:Connect(UpdatePlayerList)
-game.Players.PlayerRemoving:Connect(UpdatePlayerList)
-
-TeleportTab:CreateButton({
-    Name = "Teleport to Selected Player",
-    Callback = function()
-        local player = game.Players:FindFirstChild(SelectedPlayer)
-        if player and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = player.Character.HumanoidRootPart.CFrame
-        else
-            Rayfield:Notify({Title = "Error", Content = "Player not found.", Duration = 3})
-        end
-    end,
-})
-
--- Teleport to Part
-TeleportTab:CreateInput({
-    Name = "Part Name",
-    PlaceholderText = "Enter Part Name",
-    Callback = function(Text)
-        _G.TargetPart = Text
-    end,
-})
-
-TeleportTab:CreateButton({
-    Name = "Teleport to Part",
-    Callback = function()
-        local part = workspace:FindFirstChild(_G.TargetPart, true)
-        if part and part:IsA("BasePart") then
-            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = part.CFrame
-        else
-            Rayfield:Notify({Title = "Error", Content = "Part not found.", Duration = 3})
-        end
-    end,
-})
 
 -- ESP Tab
 local ESPTab = Window:CreateTab("ESP", 4483362458)
@@ -169,6 +135,7 @@ end
 ESPTab:CreateToggle({
     Name = "Player ESP",
     CurrentValue = false,
+    Flag = "PlayerESP",
     Callback = function(Enabled)
         if Enabled then
             for _, player in ipairs(game.Players:GetPlayers()) do
@@ -189,13 +156,28 @@ ESPTab:CreateToggle({
     end,
 })
 
--- Other Scripts Tab
-local OtherScriptsTab = Window:CreateTab("Other Scripts", 4483362458)
+-- Autofarm Tab
+local AutoFarmTab = Window:CreateTab("AutoFarm", 4483362458)
 
-OtherScriptsTab:CreateButton({
-    Name = "Execute Infinite Yield",
-    Callback = function()
-        loadstring(SafeGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
+AutoFarmTab:CreateToggle({
+    Name = "Auto Collect Coins",
+    CurrentValue = false,
+    Flag = "AutoFarm",
+    Callback = function(Enabled)
+        if Enabled then
+            _G.Farming = true
+            while _G.Farming do
+                for _, v in ipairs(workspace:GetDescendants()) do
+                    if v.Name:lower():find("coin") and v:IsA("Part") then
+                        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.CFrame
+                        wait(0.1)
+                    end
+                end
+                wait(0.5)
+            end
+        else
+            _G.Farming = false
+        end
     end,
 })
 
@@ -220,7 +202,7 @@ FunTab:CreateButton({
                         part.Color = Color3.fromHSV(tick()%5/5, 1, 1)
                     end
                 end
-                task.wait(0.1)
+                wait(0.1)
             end
         end)
     end,
