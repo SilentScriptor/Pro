@@ -1,4 +1,13 @@
-local Rayfield = loadstring(game:HttpGet("https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/main/source.lua"))()
+local success, result = pcall(function()
+    return loadstring(game:HttpGet("https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/main/source.lua"))()
+end)
+
+if success then
+    local Rayfield = result
+else
+    warn("Failed to load Rayfield:", result)
+end
+
 
 local Window = Rayfield:CreateWindow({
     Name = "Pro Hub - v2",
