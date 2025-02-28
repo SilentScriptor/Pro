@@ -18,17 +18,17 @@ end
 local Rayfield = loadstring(RayfieldSource)()
 
 local Window = Rayfield:CreateWindow({
-    Name = "Pro Hub - Universal Script",
+    Name = "Pro Hub - Universal Hub",
     LoadingTitle = "Pro Hub",
     LoadingSubtitle = "by Mike",
     Theme = "Default",
     ConfigurationSaving = {
-       Enabled = true,
-       FileName = "ProHubConfig"
+        Enabled = true,
+        FileName = "ProHubConfig"
     },
 })
 
--- Player Tab
+-- Player Tab (same as before)
 local PlayerTab = Window:CreateTab("Player", 4483362458)
 PlayerTab:CreateSlider({Name = "WalkSpeed", Range = {0, 300}, Increment = 1, Suffix = "Speed", CurrentValue = 16, Flag = "WalkSpeedSlider", Callback = function(Value)
     game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
@@ -58,37 +58,7 @@ PlayerTab:CreateToggle({Name = "No Clip", CurrentValue = false, Flag = "NoClipTo
     if Enabled then _G.NoClip = RunService.Stepped:Connect(noclip) else if _G.NoClip then _G.NoClip:Disconnect() end end
 end})
 
-PlayerTab:CreateToggle({Name = "Player ESP", CurrentValue = false, Flag = "PlayerESP", Callback = function(Enabled)
-    if Enabled then
-        for _, player in ipairs(game.Players:GetPlayers()) do
-            if player ~= game.Players.LocalPlayer then
-                local highlight = Instance.new("Highlight", player.Character or player.CharacterAdded:Wait())
-                highlight.FillColor = Color3.fromRGB(255, 0, 0)
-            end
-        end
-    else
-        for _, player in ipairs(game.Players:GetPlayers()) do
-            if player.Character then
-                for _, v in ipairs(player.Character:GetChildren()) do
-                    if v:IsA("Highlight") then v:Destroy() end
-                end
-            end
-        end
-    end
-end})
--- end of player tab
-local function SafeGet(url)
-    local success, response = pcall(function()
-        return game:HttpGet(url)
-    end)
-    if success then
-        return response
-    else
-        warn("❌ Failed to GET:", url, "| Error:", response)
-        return nil
-    end
-end
-
+-- Script Tab
 local ScriptTab = Window:CreateTab("Script", 4483362458)
 
 local scriptUrls = {
@@ -98,12 +68,16 @@ local scriptUrls = {
     ["Fich - Raito Hub"] = "https://raw.githubusercontent.com/Efe0626/RaitoHub/refs/heads/main/Script",
     ["Arsenal - THAIBAO"] = "https://raw.githubusercontent.com/tbao143/thaibao/main/TbaoHubArsenal",
     ["Lootify - QUARTYZ"] = "https://auth.quartyz.com/scripts/Loader.lua",
-    ["Jujutsu Infinite - AHMADV99"] = "https://raw.githubusercontent.com/AhmadV99/Script-Games/refs/heads/main/Jujutsu%20Infinite.lua",
+    ["Jujutsu Infinite - Speed Hub X"] = "https://raw.githubusercontent.com/AhmadV99/Script-Games/refs/heads/main/Jujutsu%20Infinite.lua",
     ["Shindo Life - CORRUPT"] = "https://raw.githubusercontent.com/Corrupt2625/Revamps/main/SpyHub.lua",
     ["Ro Ghoul - Ro-ghoul"] = "https://raw.githubusercontent.com/z4gs/scripts/master/Ro-Ghoul%20Auto%20Farm.lua",
     ["Ninja Legend - Horizon"] = "https://raw.githubusercontent.com/Shadetamic/horizon/main/loadstring.lua",
     ["Survive the Killer - ChairWare"] = "https://raw.githubusercontent.com/Milan08Studio/ChairWare/main/main.lua",
-    ["Universal - Infinite Yield"] = "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"
+    ["Universal - Infinite Yield"] = "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source",
+    ["Universal - Dex Explorer"] = "https://raw.githubusercontent.com/peyton2465/Dex/master/out.lua",
+    ["Universal - Simple Spy"] = "https://raw.githubusercontent.com/exxtremestuffs/SimpleSpySource/master/SimpleSpy.lua",
+    ["Universal - Remote Spy"] = "https://raw.githubusercontent.com/Upbolt/RemoteSpy/master/main.lua",
+    ["Universal - Dark Dex"] = "https://raw.githubusercontent.com/ResourcesLoader/Roblox-Scripts/main/darkdex.lua"
 }
 
 local function createSection(title)
@@ -138,44 +112,39 @@ local function createScriptButton(fullName)
     })
 end
 
--- Blox Fruit Section
+-- Sections & Buttons
 createSection("🍎 Blox Fruit")
 createScriptButton("Blox Fruit - SPEED HUB X")
 createScriptButton("Blox Fruit - REDZ Hub")
 
--- Fich Section
 createSection("🎣 Fich")
 createScriptButton("Fich - SPEED HUB X")
 createScriptButton("Fich - Raito Hub")
 
--- Arsenal Section
 createSection("🔫 Arsenal")
 createScriptButton("Arsenal - THAIBAO")
 
--- Lootify Section
 createSection("🧰 Lootify")
 createScriptButton("Lootify - QUARTYZ")
 
--- Jujutsu Infinite Section
 createSection("👀 Jujutsu Infinite")
-createScriptButton("Jujutsu Infinite - AHMADV99")
+createScriptButton("Jujutsu Infinite - Speed Hub X")
 
--- Shindo Life Section
 createSection("📜 Shindo Life")
 createScriptButton("Shindo Life - CORRUPT")
 
--- Ro Ghoul Section
 createSection("👹 Ro Ghoul")
 createScriptButton("Ro Ghoul - Ro-ghoul")
 
--- Ninja Legend Section
 createSection("🥋 Ninja Legend")
 createScriptButton("Ninja Legend - Horizon")
 
--- Survive the Killer Section
 createSection("🔪 Survive the Killer")
 createScriptButton("Survive the Killer - ChairWare")
 
--- Universal Section (for global stuff like Infinite Yield)
 createSection("🌐 Universal")
 createScriptButton("Universal - Infinite Yield")
+createScriptButton("Universal - Dex Explorer")
+createScriptButton("Universal - Simple Spy")
+
+
