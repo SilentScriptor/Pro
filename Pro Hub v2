@@ -1,4 +1,4 @@
-local Rayfield = loadstring(game:HttpGet("https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/main/source.lua", true))()
+local Rayfield = loadstring(game:HttpGet("https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/main/source.lua"))()
 
 local Window = Rayfield:CreateWindow({
     Name = "Pro Hub - v2",
@@ -61,15 +61,15 @@ local Slider = PlayerTab:CreateSlider({
     end,
  })
 
- local Button = PlayerTab:CreateButton({
-    Name = "Infinite Jump",
+ local Toggle = Tab:CreateToggle({
+    Name = "Toggle Example",
+    CurrentValue = false,
+    Flag = "Toggle1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
     Callback = function(InfiniteJumpEnabled)
         local InfiniteJumpEnabled = true
-        game:GetService("UserInputService").JumpRequest:connect(function()
             if InfiniteJumpEnabled then
+                game:GetService("UserInputService").JumpRequest:connect(function()
                 game:GetService"Players".LocalPlayer.Character:FindFirstChildOfClass'Humanoid':ChangeState("Jumping")
-            end
-        end)
     end,
  })
 
@@ -101,7 +101,12 @@ local Slider = PlayerTab:CreateSlider({
             Clip = true
         end
         
-        noclip() -- to toggle noclip() and clip()
+        if Value == true then
+            noclip() -- to toggle noclip() and clip()
+        else
+            clip()
+        end
+        
     end,
  })
 
