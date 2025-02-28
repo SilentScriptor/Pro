@@ -23,51 +23,110 @@ local Window = Rayfield:CreateWindow({
     LoadingSubtitle = "by Mike",
     Theme = "Default",
     ConfigurationSaving = {
-       Enabled = true,
-       FileName = "ProHubConfig"
+        Enabled = true,
+        FileName = "ProHubConfig"
     },
+})
+
+-- Player Tab
+local PlayerTab = Window:CreateTab("Player", 4483362458)
+
+PlayerTab:CreateSlider({
+    Name = "WalkSpeed",
+    Range = {0, 300},
+    Increment = 1,
+    CurrentValue = 16,
+    Flag = "WalkSpeedSlider",
+    Callback = function(Value)
+        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
+    end,
+})
+
+PlayerTab:CreateSlider({
+    Name = "JumpPower",
+    Range = {50, 500},
+    Increment = 10,
+    CurrentValue = 50,
+    Flag = "JumpPowerSlider",
+    Callback = function(Value)
+        game.Players.LocalPlayer.Character.Humanoid.JumpPower = Value
+    end,
+})
+
+PlayerTab:CreateToggle({
+    Name = "Infinite Jump",
+    CurrentValue = false,
+    Callback = function(Enabled)
+        if Enabled then
+            _G.InfiniteJump = game:GetService("UserInputService").JumpRequest:Connect(function()
+                game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
+            end)
+        else
+            if _G.InfiniteJump then
+                _G.InfiniteJump:Disconnect()
+                _G.InfiniteJump = nil
+            end
+        end
+    end,
+})
+
+PlayerTab:CreateToggle({
+    Name = "No Clip",
+    CurrentValue = false,
+    Callback = function(Enabled)
+        local function NoClip()
+            for _, v in ipairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+                if v:IsA("BasePart") then
+                    v.CanCollide = not Enabled
+                end
+            end
+        end
+
+        if Enabled then
+            _G.NoClipConnection = game:GetService("RunService").Stepped:Connect(NoClip)
+        else
+            if _G.NoClipConnection then
+                _G.NoClipConnection:Disconnect()
+            end
+        end
+    end,
 })
 
 -- Teleport Tab
 local TeleportTab = Window:CreateTab("Teleports", 4483362458)
 
 -- Teleport to Player
-local Players = {}
-for _, player in ipairs(game.Players:GetPlayers()) do
-    table.insert(Players, player.Name)
-end
+local SelectedPlayer = game.Players:GetPlayers()[1] and game.Players:GetPlayers()[1].Name or ""
 
-local SelectedPlayer = Players[1] or "Player"
-
-game.Players.PlayerAdded:Connect(function(player)
-    table.insert(Players, player.Name)
-end)
-
-game.Players.PlayerRemoving:Connect(function(player)
-    for i, name in ipairs(Players) do
-        if name == player.Name then
-            table.remove(Players, i)
-        end
-    end
-end)
-
-TeleportTab:CreateDropdown({
+local PlayerDropdown = TeleportTab:CreateDropdown({
     Name = "Select Player",
-    Options = Players,
+    Options = {},
     CurrentOption = SelectedPlayer,
     Callback = function(Option)
         SelectedPlayer = Option
     end,
 })
 
+local function UpdatePlayerList()
+    local players = {}
+    for _, player in ipairs(game.Players:GetPlayers()) do
+        table.insert(players, player.Name)
+    end
+    PlayerDropdown:SetOptions(players)
+end
+
+UpdatePlayerList()
+game.Players.PlayerAdded:Connect(UpdatePlayerList)
+game.Players.PlayerRemoving:Connect(UpdatePlayerList)
+
 TeleportTab:CreateButton({
-    Name = "Teleport to Player",
+    Name = "Teleport to Selected Player",
     Callback = function()
-        local targetPlayer = game.Players:FindFirstChild(SelectedPlayer)
-        if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
-            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = targetPlayer.Character.HumanoidRootPart.CFrame
+        local player = game.Players:FindFirstChild(SelectedPlayer)
+        if player and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = player.Character.HumanoidRootPart.CFrame
         else
-            Rayfield:Notify({Title = "Error", Content = "Player not found or not fully loaded.", Duration = 3})
+            Rayfield:Notify({Title = "Error", Content = "Player not found.", Duration = 3})
         end
     end,
 })
@@ -75,8 +134,7 @@ TeleportTab:CreateButton({
 -- Teleport to Part
 TeleportTab:CreateInput({
     Name = "Part Name",
-    PlaceholderText = "Enter part name",
-    RemoveTextAfterFocusLost = false,
+    PlaceholderText = "Enter Part Name",
     Callback = function(Text)
         _G.TargetPart = Text
     end,
@@ -89,7 +147,44 @@ TeleportTab:CreateButton({
         if part and part:IsA("BasePart") then
             game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = part.CFrame
         else
-            Rayfield:Notify({Title = "Error", Content = "Part not found!", Duration = 3})
+            Rayfield:Notify({Title = "Error", Content = "Part not found.", Duration = 3})
+        end
+    end,
+})
+
+-- ESP Tab
+local ESPTab = Window:CreateTab("ESP", 4483362458)
+
+local function ApplyESP(player)
+    if player == game.Players.LocalPlayer then return end
+    local highlight = Instance.new("Highlight", player.Character or player.CharacterAdded:Wait())
+    highlight.Adornee = player.Character
+    highlight.FillColor = Color3.fromRGB(255, 0, 0)
+    highlight.FillTransparency = 0.5
+    player.CharacterAdded:Connect(function(char)
+        highlight.Adornee = char
+    end)
+end
+
+ESPTab:CreateToggle({
+    Name = "Player ESP",
+    CurrentValue = false,
+    Callback = function(Enabled)
+        if Enabled then
+            for _, player in ipairs(game.Players:GetPlayers()) do
+                ApplyESP(player)
+            end
+            game.Players.PlayerAdded:Connect(ApplyESP)
+        else
+            for _, player in ipairs(game.Players:GetPlayers()) do
+                if player.Character then
+                    for _, v in ipairs(player.Character:GetChildren()) do
+                        if v:IsA("Highlight") then
+                            v:Destroy()
+                        end
+                    end
+                end
+            end
         end
     end,
 })
@@ -104,12 +199,41 @@ OtherScriptsTab:CreateButton({
     end,
 })
 
--- Add more external scripts here if you want, like:
--- OtherScriptsTab:CreateButton({
---     Name = "Execute Dex Explorer",
---     Callback = function()
---         loadstring(SafeGet("https://raw.githubusercontent.com/infyiff/backup/main/dex.lua"))()
---     end,
--- })
+-- Fun Tab
+local FunTab = Window:CreateTab("Fun", 4483362458)
+
+FunTab:CreateButton({
+    Name = "Fling Yourself",
+    Callback = function()
+        local hrp = game.Players.LocalPlayer.Character.HumanoidRootPart
+        hrp.Velocity = Vector3.new(math.random(-500, 500), math.random(500, 1000), math.random(-500, 500))
+    end,
+})
+
+FunTab:CreateButton({
+    Name = "Rainbow Character",
+    Callback = function()
+        spawn(function()
+            while true do
+                for _, part in ipairs(game.Players.LocalPlayer.Character:GetChildren()) do
+                    if part:IsA("BasePart") then
+                        part.Color = Color3.fromHSV(tick()%5/5, 1, 1)
+                    end
+                end
+                task.wait(0.1)
+            end
+        end)
+    end,
+})
+
+FunTab:CreateButton({
+    Name = "Explode Yourself",
+    Callback = function()
+        local explosion = Instance.new("Explosion")
+        explosion.Position = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
+        explosion.Parent = workspace
+        game.Players.LocalPlayer.Character:BreakJoints()
+    end,
+})
 
 Rayfield:LoadConfiguration()
