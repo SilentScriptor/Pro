@@ -218,4 +218,111 @@ FunTab:CreateButton({
     end,
 })
 
+FunTab:CreateButton({
+    Name = "Spin Like Crazy",
+    Callback = function()
+        local hrp = game.Players.LocalPlayer.Character.HumanoidRootPart
+        spawn(function()
+            while true do
+                hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(30), 0)
+                wait(0.05)
+            end
+        end)
+    end,
+})
+
+FunTab:CreateButton({
+    Name = "Tiny Character",
+    Callback = function()
+        for _, part in ipairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.Size = part.Size * 0.3
+            end
+        end
+    end,
+})
+
+FunTab:CreateButton({
+    Name = "Giant Character",
+    Callback = function()
+        for _, part in ipairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.Size = part.Size * 3
+            end
+        end
+    end,
+})
+
+FunTab:CreateButton({
+    Name = "Teleport to Random Player",
+    Callback = function()
+        local players = game.Players:GetPlayers()
+        if #players > 1 then
+            local target = players[math.random(1, #players)]
+            if target ~= game.Players.LocalPlayer and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = target.Character.HumanoidRootPart.CFrame
+            end
+        else
+            Rayfield:Notify({Title = "Oops!", Content = "No other players found to teleport to."})
+        end
+    end,
+})
+
+FunTab:CreateButton({
+    Name = "Gravity Madness",
+    Callback = function()
+        game.Workspace.Gravity = math.random(1, 200)
+        Rayfield:Notify({Title = "Gravity Set!", Content = "New Gravity: " .. game.Workspace.Gravity})
+    end,
+})
+
+FunTab:CreateButton({
+    Name = "Fly (Simple)",
+    Callback = function()
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+        local flying = true
+
+        local bodyVelocity = Instance.new("BodyVelocity", humanoidRootPart)
+        bodyVelocity.Velocity = Vector3.new(0, 50, 0)
+        bodyVelocity.MaxForce = Vector3.new(4000, 4000, 4000)
+
+        Rayfield:Notify({Title = "Flying!", Content = "Press 'E' to stop flying."})
+
+        game:GetService("UserInputService").InputBegan:Connect(function(input)
+            if input.KeyCode == Enum.KeyCode.E then
+                flying = false
+                bodyVelocity:Destroy()
+            end
+        end)
+    end,
+})
+
+FunTab:CreateButton({
+    Name = "Fake Lag (Lag Switch)",
+    Callback = function()
+        local RunService = game:GetService("RunService")
+
+        Rayfield:Notify({Title = "Fake Lag", Content = "Press 'L' to toggle lag."})
+
+        local lagging = false
+
+        game:GetService("UserInputService").InputBegan:Connect(function(input)
+            if input.KeyCode == Enum.KeyCode.L then
+                lagging = not lagging
+                if lagging then
+                    RunService:Set3dRenderingEnabled(false)
+                    Rayfield:Notify({Title = "Lag On", Content = "Rendering Disabled."})
+                else
+                    RunService:Set3dRenderingEnabled(true)
+                    Rayfield:Notify({Title = "Lag Off", Content = "Rendering Enabled."})
+                end
+            end
+        end)
+    end,
+})
+
+
 Rayfield:LoadConfiguration()
