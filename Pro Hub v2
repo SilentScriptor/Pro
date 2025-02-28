@@ -156,36 +156,11 @@ ESPTab:CreateToggle({
     end,
 })
 
--- Autofarm Tab
-local AutoFarmTab = Window:CreateTab("AutoFarm", 4483362458)
-
-AutoFarmTab:CreateToggle({
-    Name = "Auto Collect Coins",
-    CurrentValue = false,
-    Flag = "AutoFarm",
-    Callback = function(Enabled)
-        if Enabled then
-            _G.Farming = true
-            while _G.Farming do
-                for _, v in ipairs(workspace:GetDescendants()) do
-                    if v.Name:lower():find("coin") and v:IsA("Part") then
-                        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.CFrame
-                        wait(0.1)
-                    end
-                end
-                wait(0.5)
-            end
-        else
-            _G.Farming = false
-        end
-    end,
-})
-
 -- Fun Tab
 local FunTab = Window:CreateTab("Fun", 4483362458)
 
 FunTab:CreateButton({
-    Name = "Fling Yourself",
+    Name = "Fling Yourself (Server)",
     Callback = function()
         local hrp = game.Players.LocalPlayer.Character.HumanoidRootPart
         hrp.Velocity = Vector3.new(math.random(-500, 500), math.random(500, 1000), math.random(-500, 500))
@@ -193,7 +168,7 @@ FunTab:CreateButton({
 })
 
 FunTab:CreateButton({
-    Name = "Rainbow Character",
+    Name = "Rainbow Character (Client)",
     Callback = function()
         spawn(function()
             while true do
@@ -209,7 +184,7 @@ FunTab:CreateButton({
 })
 
 FunTab:CreateButton({
-    Name = "Explode Yourself",
+    Name = "Explode Yourself (Server)",
     Callback = function()
         local explosion = Instance.new("Explosion")
         explosion.Position = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
@@ -217,5 +192,140 @@ FunTab:CreateButton({
         game.Players.LocalPlayer.Character:BreakJoints()
     end,
 })
+
+FunTab:CreateToggle({
+    Name = "Spin Like Crazy (Server)",
+    CurrentValue = false,
+    Callback = function(enabled)
+        local hrp = game.Players.LocalPlayer.Character.HumanoidRootPart
+        if enabled then
+            _G.SpinLoop = true
+            spawn(function()
+                while _G.SpinLoop do
+                    hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(30), 0)
+                    wait(0.05)
+                end
+            end)
+        else
+            _G.SpinLoop = false
+        end
+    end,
+})
+
+FunTab:CreateButton({
+    Name = "Tiny Character (Server)",
+    Callback = function()
+        for _, part in ipairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.Size = part.Size * 0.3
+            end
+        end
+    end,
+})
+
+FunTab:CreateButton({
+    Name = "Giant Character (Server)",
+    Callback = function()
+        for _, part in ipairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.Size = part.Size * 3
+            end
+        end
+    end,
+})
+
+FunTab:CreateButton({
+    Name = "Teleport to Random Player (Client)",
+    Callback = function()
+        local players = game.Players:GetPlayers()
+        if #players > 1 then
+            local target = players[math.random(1, #players)]
+            if target ~= game.Players.LocalPlayer and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = target.Character.HumanoidRootPart.CFrame
+            end
+        else
+            Rayfield:Notify({Title = "Oops!", Content = "No other players found to teleport to."})
+        end
+    end,
+})
+
+FunTab:CreateToggle({
+    Name = "Gravity Madness (Client)",
+    CurrentValue = false,
+    Callback = function(enabled)
+        if enabled then
+            game.Workspace.Gravity = math.random(1, 200)
+            Rayfield:Notify({Title = "Gravity Set!", Content = "Gravity: " .. game.Workspace.Gravity})
+        else
+            game.Workspace.Gravity = 196.2
+            Rayfield:Notify({Title = "Gravity Reset", Content = "Back to normal."})
+        end
+    end,
+})
+
+FunTab:CreateToggle({
+    Name = "Fake Lag (Client)",
+    CurrentValue = false,
+    Callback = function(enabled)
+        game:GetService("RunService"):Set3dRenderingEnabled(not enabled)
+        if enabled then
+            Rayfield:Notify({Title = "Fake Lag On", Content = "Rendering Disabled."})
+        else
+            Rayfield:Notify({Title = "Fake Lag Off", Content = "Rendering Enabled."})
+        end
+    end,
+})
+
+FunTab:CreateButton({
+    Name = "Explode Yourself (Server)",
+    Callback = function()
+        local explosion = Instance.new("Explosion")
+        explosion.Position = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
+        explosion.Parent = workspace
+        game.Players.LocalPlayer.Character:BreakJoints()
+    end,
+})
+
+FunTab:CreateToggle({
+    Name = "Rainbow Character (Server)",
+    CurrentValue = false,
+    Callback = function(enabled)
+        if enabled then
+            _G.RainbowCharacter = true
+            spawn(function()
+                while _G.RainbowCharacter do
+                    for _, part in ipairs(game.Players.LocalPlayer.Character:GetChildren()) do
+                        if part:IsA("BasePart") then
+                            part.Color = Color3.fromHSV(tick()%5/5, 1, 1)
+                        end
+                    end
+                    wait(0.1)
+                end
+            end)
+        else
+            _G.RainbowCharacter = false
+        end
+    end,
+})
+
+FunTab:CreateToggle({
+    Name = "Fling Yourself (Server)",
+    CurrentValue = false,
+    Callback = function(enabled)
+        local hrp = game.Players.LocalPlayer.Character.HumanoidRootPart
+        if enabled then
+            _G.FlingLoop = true
+            spawn(function()
+                while _G.FlingLoop do
+                    hrp.Velocity = Vector3.new(math.random(-500, 500), math.random(500, 1000), math.random(-500, 500))
+                    wait(0.1)
+                end
+            end)
+        else
+            _G.FlingLoop = false
+        end
+    end,
+})
+
 
 Rayfield:LoadConfiguration()
