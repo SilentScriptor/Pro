@@ -19,7 +19,7 @@ local Rayfield = loadstring(RayfieldSource)()
 
 local Window = Rayfield:CreateWindow({
     Name = "Pro Hub - Universal Hub",
-    LoadingTitle = "Pro Hub",
+    LoadingTitle = "Pro Hub",   
     LoadingSubtitle = "by Mike",
     Theme = "Default",
     ConfigurationSaving = {
@@ -94,6 +94,14 @@ local scriptUrls = {
 local function createSection(title)
     ScriptTab:CreateSection(title)
 end
+
+createSection("❌ Destroy Hub")
+ScriptTab:CreateButton({
+    Name = "❌ Destroy Hub",
+    Callback = function()
+        Rayfield:Destroy()
+    end
+})
 
 local function createScriptButton(fullName)
     ScriptTab:CreateButton({
