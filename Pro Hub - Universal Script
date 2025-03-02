@@ -26,6 +26,17 @@ local Window = Rayfield:CreateWindow({
         Enabled = true,
         FileName = "ProHubConfig"
     },
+
+    KeySystem = true, -- Set this to true to use our key system
+   KeySettings = {
+      Title = "Pro Hub",
+      Subtitle = "Key System",
+      Note = "Hint: Brain Rot", -- Use this to tell the user how to get a key
+      FileName = "Key", -- It is recommended to use something unique as other scripts using Rayfield may overwrite your key file
+      SaveKey = true, -- The user's key will be saved, but if you change the key, they will be unable to use your script
+      GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
+      Key = {"Sigma Boy"} -- List of keys that will be accepted by the system, can be RAW file links (pastebin, github etc) or simple strings ("hello","key22")
+   }
 })
 
 -- Player Tab (same as before)
@@ -62,6 +73,9 @@ end})
 local ScriptTab = Window:CreateTab("Script", 4483362458)
 
 local scriptUrls = {
+    ["Universal - Infinite Yield"] = "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source",
+    ["Universal - Dex Explorer"] = "https://raw.githubusercontent.com/peyton2465/Dex/master/out.lua",
+    ["Universal - Simple Spy"] = "https://raw.githubusercontent.com/exxtremestuffs/SimpleSpySource/master/SimpleSpy.lua",
     ["Blox Fruit - SPEED HUB X"] = "https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua",
     ["Blox Fruit - REDZ Hub"] = "https://raw.githubusercontent.com/realredz/BloxFruits/refs/heads/main/Source.lua",
     ["Fich - SPEED HUB X"] = "https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua",
@@ -73,11 +87,8 @@ local scriptUrls = {
     ["Ro Ghoul - Ro-ghoul"] = "https://raw.githubusercontent.com/z4gs/scripts/master/Ro-Ghoul%20Auto%20Farm.lua",
     ["Ninja Legend - Horizon"] = "https://raw.githubusercontent.com/Shadetamic/horizon/main/loadstring.lua",
     ["Survive the Killer - ChairWare"] = "https://raw.githubusercontent.com/Milan08Studio/ChairWare/main/main.lua",
-    ["Universal - Infinite Yield"] = "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source",
-    ["Universal - Dex Explorer"] = "https://raw.githubusercontent.com/peyton2465/Dex/master/out.lua",
-    ["Universal - Simple Spy"] = "https://raw.githubusercontent.com/exxtremestuffs/SimpleSpySource/master/SimpleSpy.lua",
-    ["Universal - Remote Spy"] = "https://raw.githubusercontent.com/Upbolt/RemoteSpy/master/main.lua",
-    ["Universal - Dark Dex"] = "https://raw.githubusercontent.com/ResourcesLoader/Roblox-Scripts/main/darkdex.lua"
+    ["Blue Lock - THAIBAO"] = "https://raw.githubusercontent.com/tbao143/game/refs/heads/main/TbaoHubBlueLockRivals",
+    ["Blade Ball - Frostware"] = "https://raw.githubusercontent.com/Fsploit/Frostware-/refs/heads/main/Bypass.lua",
 }
 
 local function createSection(title)
@@ -113,6 +124,12 @@ local function createScriptButton(fullName)
 end
 
 -- Sections & Buttons
+
+createSection("🌐 Universal")
+createScriptButton("Universal - Infinite Yield")
+createScriptButton("Universal - Dex Explorer")
+createScriptButton("Universal - Simple Spy")
+
 createSection("🍎 Blox Fruit")
 createScriptButton("Blox Fruit - SPEED HUB X")
 createScriptButton("Blox Fruit - REDZ Hub")
@@ -142,9 +159,8 @@ createScriptButton("Ninja Legend - Horizon")
 createSection("🔪 Survive the Killer")
 createScriptButton("Survive the Killer - ChairWare")
 
-createSection("🌐 Universal")
-createScriptButton("Universal - Infinite Yield")
-createScriptButton("Universal - Dex Explorer")
-createScriptButton("Universal - Simple Spy")
+createSection("⚽ Blue Lock")
+createScriptButton("Blue Lock - THAIBAO")
 
-
+createSection("⚔️ Blade Ball")
+createScriptButton("Blade Ball - Frostware")
