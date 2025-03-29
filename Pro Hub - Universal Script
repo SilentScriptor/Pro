@@ -27,19 +27,19 @@ local Window = Rayfield:CreateWindow({
         FileName = "ProHubConfig"
     },
 
-    KeySystem = true, -- Set this to true to use our key system
-   KeySettings = {
-      Title = "Pro Hub",
-      Subtitle = "Key System",
-      Note = "Hint: Brain Rot", -- Use this to tell the user how to get a key
-      FileName = "Key", -- It is recommended to use something unique as other scripts using Rayfield may overwrite your key file
-      SaveKey = true, -- The user's key will be saved, but if you change the key, they will be unable to use your script
-      GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
-      Key = {"Sigma Boy"} -- List of keys that will be accepted by the system, can be RAW file links (pastebin, github etc) or simple strings ("hello","key22")
-   }
+    KeySystem = true, 
+    KeySettings = {
+        Title = "Pro Hub",
+        Subtitle = "Key System",
+        Note = "Hint: Brain Rot",
+        FileName = "Key",
+        SaveKey = true,
+        GrabKeyFromSite = false,
+        Key = {"Sigma Boy"}
+    }
 })
 
--- Player Tab (same as before)
+-- 🎮 Player Tab
 local PlayerTab = Window:CreateTab("Player", 4483362458)
 PlayerTab:CreateSlider({Name = "WalkSpeed", Range = {0, 300}, Increment = 1, Suffix = "Speed", CurrentValue = 16, Flag = "WalkSpeedSlider", Callback = function(Value)
     game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
@@ -69,8 +69,19 @@ PlayerTab:CreateToggle({Name = "No Clip", CurrentValue = false, Flag = "NoClipTo
     if Enabled then _G.NoClip = RunService.Stepped:Connect(noclip) else if _G.NoClip then _G.NoClip:Disconnect() end end
 end})
 
--- Script Tab
+-- 📜 Script Tab
 local ScriptTab = Window:CreateTab("Script", 4483362458)
+
+-- 🔥 Destroy Toggle (INSIDE Script Tab)
+local DestroyOnExecute = false
+ScriptTab:CreateToggle({
+    Name = "Destroy Hub on Script Execution",
+    CurrentValue = false, 
+    Flag = "DestroyToggle",
+    Callback = function(Enabled)
+        DestroyOnExecute = Enabled
+    end
+})
 
 local scriptUrls = {
     ["Universal - Infinite Yield"] = "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source",
@@ -95,14 +106,6 @@ local function createSection(title)
     ScriptTab:CreateSection(title)
 end
 
-createSection("❌ Destroy Hub")
-ScriptTab:CreateButton({
-    Name = "❌ Destroy Hub",
-    Callback = function()
-        Rayfield:Destroy()
-    end
-})
-
 local function createScriptButton(fullName)
     ScriptTab:CreateButton({
         Name = fullName,
@@ -117,6 +120,11 @@ local function createScriptButton(fullName)
                         Content = "Successfully executed: " .. fullName,
                         Duration = 5
                     })
+
+                    -- 🚀 Auto-Destroy if Enabled
+                    if DestroyOnExecute then
+                        Rayfield:Destroy()
+                    end
                 else
                     Rayfield:Notify({
                         Title = "❌ Failed to Load",
