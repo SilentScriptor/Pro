@@ -39,36 +39,6 @@ local Window = Rayfield:CreateWindow({
     }
 })
 
--- 🎮 Player Tab
-local PlayerTab = Window:CreateTab("Player", 4483362458)
-PlayerTab:CreateSlider({Name = "WalkSpeed", Range = {0, 300}, Increment = 1, Suffix = "Speed", CurrentValue = 16, Flag = "WalkSpeedSlider", Callback = function(Value)
-    game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
-end})
-
-PlayerTab:CreateSlider({Name = "JumpPower", Range = {50, 500}, Increment = 10, Suffix = "JumpPower", CurrentValue = 50, Flag = "JumpPowerSlider", Callback = function(Value)
-    game.Players.LocalPlayer.Character.Humanoid.JumpPower = Value
-end})
-
-PlayerTab:CreateToggle({Name = "Infinite Jump", CurrentValue = false, Flag = "InfiniteJumpToggle", Callback = function(Enabled)
-    if Enabled then
-        _G.InfiniteJump = game:GetService("UserInputService").JumpRequest:Connect(function()
-            game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
-        end)
-    else
-        if _G.InfiniteJump then _G.InfiniteJump:Disconnect() end
-    end
-end})
-
-PlayerTab:CreateToggle({Name = "No Clip", CurrentValue = false, Flag = "NoClipToggle", Callback = function(Enabled)
-    local RunService = game:GetService('RunService')
-    local function noclip()
-        for _, v in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
-            if v:IsA('BasePart') then v.CanCollide = false end
-        end
-    end
-    if Enabled then _G.NoClip = RunService.Stepped:Connect(noclip) else if _G.NoClip then _G.NoClip:Disconnect() end end
-end})
-
 -- 📜 Script Tab
 local ScriptTab = Window:CreateTab("Script", 4483362458)
 
