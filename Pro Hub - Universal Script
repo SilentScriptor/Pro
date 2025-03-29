@@ -66,6 +66,7 @@ local scriptUrls = {
     ["Jujutsu Infinite - Speed Hub X"] = "https://raw.githubusercontent.com/AhmadV99/Script-Games/refs/heads/main/Jujutsu%20Infinite.lua",
     ["Shindo Life - CORRUPT"] = "https://raw.githubusercontent.com/Corrupt2625/Revamps/main/SpyHub.lua",
     ["Ro Ghoul - Ro-ghoul"] = "https://raw.githubusercontent.com/z4gs/scripts/master/Ro-Ghoul%20Auto%20Farm.lua",
+    ["Ro Ghoul - Porry Hub"] = "https://raw.githubusercontent.com/PorryDepTrai/exploit/main/DashBoostSolora.lua",
     ["Ninja Legend - Horizon"] = "https://raw.githubusercontent.com/Shadetamic/horizon/main/loadstring.lua",
     ["Survive the Killer - ChairWare"] = "https://raw.githubusercontent.com/Milan08Studio/ChairWare/main/main.lua",
     ["Blue Lock - THAIBAO"] = "https://raw.githubusercontent.com/tbao143/game/refs/heads/main/TbaoHubBlueLockRivals",
@@ -138,6 +139,7 @@ createScriptButton("Shindo Life - CORRUPT")
 
 createSection("👹 Ro Ghoul")
 createScriptButton("Ro Ghoul - Ro-ghoul")
+createScriptButton("Ro Ghoul - Porry Hub")
 
 createSection("🥋 Ninja Legend")
 createScriptButton("Ninja Legend - Horizon")
