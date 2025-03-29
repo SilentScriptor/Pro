@@ -27,15 +27,15 @@ local Window = Rayfield:CreateWindow({
         FileName = "ProHubConfig"
     },
 
-    KeySystem = true, 
+    KeySystem = false, 
     KeySettings = {
         Title = "Pro Hub",
         Subtitle = "Key System",
-        Note = "Hint: Brain Rot",
+        Note = "None",
         FileName = "Key",
         SaveKey = true,
         GrabKeyFromSite = false,
-        Key = {"Sigma Boy"}
+        Key = {"Pro_1092"}
     }
 })
 
