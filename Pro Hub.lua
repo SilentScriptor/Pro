@@ -42,17 +42,6 @@ local Window = Rayfield:CreateWindow({
 -- 📜 Script Tab
 local ScriptTab = Window:CreateTab("Script", 4483362458)
 
--- 🔥 Destroy Toggle (INSIDE Script Tab)
-local DestroyOnExecute = false
-ScriptTab:CreateToggle({
-    Name = "Destroy Hub on Script Execution",
-    CurrentValue = false, 
-    Flag = "DestroyToggle",
-    Callback = function(Enabled)
-        DestroyOnExecute = Enabled
-    end
-})
-
 local scriptUrls = {
     ["Universal - Infinite Yield"] = "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source",
     ["Universal - Dex Explorer"] = "https://raw.githubusercontent.com/peyton2465/Dex/master/out.lua",
@@ -76,6 +65,18 @@ local scriptUrls = {
 local function createSection(title)
     ScriptTab:CreateSection(title)
 end
+
+-- 🔥 Destroy Toggle
+createSection("Destroy Hub")
+local DestroyOnExecute = false
+ScriptTab:CreateToggle({
+    Name = "Destroy Hub on Script Execution",
+    CurrentValue = false, 
+    Flag = "DestroyToggle",
+    Callback = function(Enabled)
+        DestroyOnExecute = Enabled
+    end
+})
 
 local function createScriptButton(fullName)
     ScriptTab:CreateButton({
